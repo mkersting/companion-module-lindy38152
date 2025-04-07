@@ -5,8 +5,8 @@
 	"description": "Controls Lindy 4x4 Matrix Switch Model 38152 v1 via Websocket",
 	"version": "0.0.0",
 	"license": "MIT",
-	"repository": "git+https://github.com/bitfocus/companion-module-your-module-name.git",
-	"bugs": "https://github.com/bitfocus/companion-module-your-module-name/issues",
+	"repository": "git+https://github.com/mkersting/companion-module-lindy38152.git",
+	"bugs": "https://github.com/mkersting/companion-module-lindy38152/issues",
 	"maintainers": [
 		{
 			"name": "Marian Kersting",
@@ -20,7 +20,7 @@
 		"entrypoint": "../main.js"
 	},
 	"legacyIds": [],
-	"manufacturer": "Private",
-	"products": ["Your product"],
-	"keywords": []
+	"manufacturer": "Lindy",
+	"products": ["Lindy38152"],
+	"keywords": ["HDMI", "Matrix", "Switch", "Websocket"]
 }

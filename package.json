@@ -9,7 +9,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/bitfocus/companion-module-your-module-name.git"
+		"url": "git+https://github.com/mkersting/companion-module-lindy38152.git"
 	},
 	"dependencies": {
 		"@companion-module/base": "~1.11.2"
