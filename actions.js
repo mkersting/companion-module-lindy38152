@@ -16,5 +16,46 @@ module.exports = function (self) {
 				console.log('Hello world!', event.options.num)
 			},
 		},
+		switch_output: {
+			name: 'Output Switch',
+			options: [
+				{
+					id: 'input',
+					type: 'number',
+					label: 'Input-Channel',
+					default: 1,
+					min: 1,
+					max: 4,
+				},
+				{
+					id: 'output',
+					type: 'number',
+					label: 'Output-Channel',
+					default: 1,
+					min: 1,
+					max: 4,
+				},
+			],
+			callback: async (event) => {
+				console.log('Switch Input To Output Channel: ', event.options.output)
+				this.checkFeedbacks('fb_channelswitch')
+			},
+		},
+		get_status: {
+			name: 'Get_Status',
+			options: [
+				{
+					id: 'status',
+					type: 'number',
+					label: 'Status',
+					default: 1,
+					min: 1,
+					max: 4,
+				},
+			],
+			callback: async (event) => {
+				console.log('Try to get Status of Device, Callback if Positive answer.', event.options.status)
+			},
+		},
 	})
 }
