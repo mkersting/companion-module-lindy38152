@@ -15,16 +15,20 @@ module.exports = async function (self) {
 					id: 'fb_channelswitch',
 					type: 'number',
 					label: 'FB_Channel',
-					default: 7,
+					default: 1,
 					min: 0,
-					max: 10,
+					max: 4,
 				},
 			],
 			callback: (feedback) => {
-				console.log('Feedback called With Number.', feedback.options.num)
+				//console.log('Feedback called With Number.', feedback.options.fb_channelswitch)
+				console.log('Feedback Log Selected Input: ', this.selectedInput)
+				console.log('Feedback Log Routed Input to Selected Output: ', this.selectedOutput)
+
+
 				// Check if Device has answered and return true or false
-				if (2< feedback.options.num) {
-					feedback.options.label= feedback.options.num
+				if (this.selectedInput == this.selectedOutput) {
+					
 					return true
 				} else {
 

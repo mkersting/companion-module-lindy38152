@@ -38,7 +38,11 @@ module.exports = function (self) {
 			],
 			callback: async (event) => {
 				console.log('Switch Input To Output Channel: ', event.options.output)
-				this.checkFeedbacks('fb_channelswitch')
+				this.selectedInput = event.options.input
+				this.selectedOutput = event.options.output
+				// console.log('Selected Input: ', this.selectedInput)
+				// console.log('Selected Output: ', this.selectedOutput)
+				self.checkFeedbacks()
 			},
 		},
 		get_status: {
