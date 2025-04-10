@@ -1,3 +1,5 @@
+const { sendWsCommand } = require('./ws-helper')
+
 module.exports = function (self) {
 	self.setActionDefinitions({
 		sample_action: {
@@ -42,23 +44,66 @@ module.exports = function (self) {
 				this.selectedOutput = event.options.output
 				// console.log('Selected Input: ', this.selectedInput)
 				// console.log('Selected Output: ', this.selectedOutput)
+
+
+				//====================
+				//Websocket Send
+
+				sendWsCommand(self, {
+					command: 'switch',
+					input: event.options.input,
+					output: event.options.output,
+				})
+
+
+				//if (self.ws && self.ws.readyState === WebSocket.OPEN) {
+				//	self.ws.send(JSON.stringify({
+				//		command: 'switch',
+				//		input: this.selectedInput,
+				//		output: this.selectedOutput,
+				//	}))
+				//}
+				//else {
+				//	self.log('warn', 'WebSocket not connected')
+				//}
+
+				//====================
+
+
+
 				self.checkFeedbacks()
 			},
 		},
-		get_status: {
-			name: 'Get_Status',
+		request_status: {
+			name: 'Request Status of Iutput',
 			options: [
 				{
-					id: 'status',
 					type: 'number',
-					label: 'Status',
-					default: 1,
+					id: 'sinput',
+					label: 'Input Number',
 					min: 1,
 					max: 4,
+					default: 1,
 				},
 			],
-			callback: async (event) => {
-				console.log('Try to get Status of Device, Callback if Positive answer.', event.options.status)
+			callback: async ({ options }) => {
+
+				sendWsCommand(self, {
+					command: 'status',
+					output: parseInt(options.sinput),
+				})
+
+				//const msg = {
+				//	command: 'status',
+				//	output: parseInt(options.output),
+				//}
+
+				//if (self.ws && self.ws.readyState === WebSocket.OPEN) {
+				//	self.ws.send(JSON.stringify(msg))
+				//	self.log('info', `Sent status request for output ${options.output}`)
+				//} else {
+				//	self.log('error', 'WebSocket not connected')
+				//}
 			},
 		},
 	})

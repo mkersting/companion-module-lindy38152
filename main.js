@@ -4,19 +4,29 @@ const UpdateActions = require('./actions')
 const UpdateFeedbacks = require('./feedbacks')
 const UpdateVariableDefinitions = require('./variables')
 
+const WebSocket = require('ws')
+
 class ModuleInstance extends InstanceBase {
 	constructor(internal) {
 		super(internal)
+		this.ws = null
+		this.config = {}
 	}
 
 	async init(config) {
 		this.config = config
+
+		this.setupWebSocket()
 
 		this.updateStatus(InstanceStatus.Ok)
 
 		this.updateActions() // export actions
 		this.updateFeedbacks() // export feedbacks
 		this.updateVariableDefinitions() // export variable definitions
+
+
+
+
 	}
 	// When module gets deleted
 	async destroy() {
@@ -25,7 +35,80 @@ class ModuleInstance extends InstanceBase {
 
 	async configUpdated(config) {
 		this.config = config
+
+		if (this.socket) {
+			this.socket.close()
+		}
+
+		this.setupWebSocket()
 	}
+
+	setupWebSocket() {
+		// INITIALIZE WEBSOCKET CONNECTION
+		if (this.ws) {
+			this.ws.close()
+			this.ws = null
+		}
+
+		const { host, port } = this.config
+		const url = `ws://${host}:${port}`
+		this.log('info', `Connecting to WebSocket server at ${url}`)
+
+		// TODO CHANGE localhost to IP adress of Configuration
+		// TODO CHANGE 15809 to Port of Configuration
+		//this.ws = new WebSocket('ws://localhost:15809') // Or your Raspberry Pi's IP later
+		try {
+			this.ws = new WebSocket(url)
+
+			this.ws.on('open', () => {
+				this.log('info', 'WebSocket connection established')
+				// Reset reconnect attempts after successful connection
+				this.reconnectAttempts = 0
+			})
+
+			this.ws.on('message', (data) => {
+				this.log('debug', `Received from server: ${data}`)
+				// TODO: Handle message from server
+			})
+
+			this.ws.on('error', (err) => {
+				this.log('error', `WebSocket error: ${err.message}`)
+			})
+
+			this.ws.on('close', () => {
+				this.log('warn', 'WebSocket connection closed')
+				this.log("Trying to Reconnect...")
+
+				if (this.config.enableReconnect) {
+					this.scheduleReconnect()
+				}
+			})
+		} catch (err) {
+			this.log('error', `Failed to connect: ${err.message}`)
+		}
+
+		//END INITIALIZE WEBSOCKET CONNECTION
+	}
+
+	scheduleReconnect() {
+		if (!this.reconnectAttempts) {
+			this.reconnectAttempts = 0
+		}
+	
+		const maxAttempts = parseInt(this.config.numberofreconnects) || 5
+	
+		if (this.reconnectAttempts < maxAttempts) {
+			this.reconnectAttempts++
+			this.log('info', `Reconnecting attempt ${this.reconnectAttempts} of ${maxAttempts}...`)
+	
+			setTimeout(() => {
+				this.setupWebSocket()
+			}, 2000) // try again in 2 seconds
+		} else {
+			this.log('error', `Max reconnect attempts (${maxAttempts}) reached.`)
+		}
+	}
+
 
 	// Return config fields for web config
 	getConfigFields() {
@@ -36,6 +119,7 @@ class ModuleInstance extends InstanceBase {
 				label: 'Target IP',
 				width: 8,
 				regex: Regex.IP,
+				default: "127.0.0.1",
 			},
 			{
 				type: 'textinput',
@@ -43,6 +127,21 @@ class ModuleInstance extends InstanceBase {
 				label: 'Target Port',
 				width: 4,
 				regex: Regex.PORT,
+				default: "1580",
+			},
+			{
+				type: 'checkbox',
+				id: 'enableReconnect',
+				label: 'Automatically reconnect WebSocket if connection drops',
+				default: true,
+			},
+			{
+				type: 'number',
+				id: 'numberofreconnects',
+				label: 'Trys to reconnect',
+				min: 1,
+				max: 10,
+				default: 5,
 			},
 		]
 	}

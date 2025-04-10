@@ -25,7 +25,6 @@ module.exports = async function (self) {
 				console.log('Feedback Log Selected Input: ', this.selectedInput)
 				console.log('Feedback Log Routed Input to Selected Output: ', this.selectedOutput)
 
-
 				// Check if Device has answered and return true or false
 				if (this.selectedInput == this.selectedOutput) {
 					

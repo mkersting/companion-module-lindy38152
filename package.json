@@ -12,7 +12,8 @@
 		"url": "git+https://github.com/mkersting/companion-module-lindy38152.git"
 	},
 	"dependencies": {
-		"@companion-module/base": "~1.11.2"
+		"@companion-module/base": "~1.11.2",
+		"ws": "^8.18.1"
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^2.1.1",
