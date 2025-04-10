@@ -71,7 +71,7 @@ module.exports = function (self) {
 
 
 				
-				self.checkFeedbacks()
+				//self.checkFeedbacks()
 				self.checkFeedbacksById('PortStatus')
 			},
 		},
@@ -104,9 +104,12 @@ module.exports = function (self) {
 					type: options.portType, // 'input' or 'output'
 					port: parseInt(options.statusport),
 				})
+				
+				//setTimeout(() => {
+				//	console.log('Call Feedback')
+				//}, 50) // small delay (50ms)
 
-				console.log('Call Feedback')
-				self.checkFeedbacks()
+				//self.checkFeedbacks()
 				//self.checkFeedbacksById('PortStatus')
 
 				//const msg = {

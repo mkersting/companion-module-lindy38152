@@ -13,8 +13,8 @@ class ModuleInstance extends InstanceBase {
 		this.config = {}
 
 		this.portStatus = {
-			input: {},   // { 1: true/false, 2: true/false, ... }
-			output: {},
+			input: {1: false, 2: false, 3: false, 4: false},   // { 1: true/false, 2: true/false, ... }
+			output: {1: false, 2: false, 3: false, 4: false},
 		}
 	}
 
@@ -84,16 +84,18 @@ class ModuleInstance extends InstanceBase {
 				//	self.checkFeedbacksById('PortStatus')
 				//}
 
+				//console.log('TRY parse Data')
 				try {
 					const msg = JSON.parse(data)
-
+					//console.log('parse Data')
 					if (msg.feedback === 'PortStatus') {
 						this.portStatus[msg.type][msg.port] = msg.connected
 						// Delay feedback check to give Companion time to update internal state
 						setTimeout(() => {
-							this.checkFeedbacksById('PortStatus')
+							this.checkFeedbacks()
 						}, 50) // small delay (50ms)
 
+						//console.log('SUCESS parse Data')
 					}
 				} catch (err) {
 					this.log('error', `Failed to parse WS message: ${err.message}`)
