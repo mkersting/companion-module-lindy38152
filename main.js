@@ -76,14 +76,30 @@ class ModuleInstance extends InstanceBase {
 			this.ws.on('message', (data) => {
 				this.log('debug', `Received from server: ${data}`)
 				// TODO: Handle message from server
+				// HANDLE MESSAGE
+				//const parsed = parser.parseStatusMessage(data)
+				//
+				//if (parsed && parsed.command === 'status_reply') {
+				//	self.portStatus[parsed.type][parsed.port] = parsed.connected
+				//	self.checkFeedbacksById('PortStatus')
+				//}
 
-				const parsed = parser.parseStatusMessage(data)
+				try {
+					const msg = JSON.parse(data)
 
-				if (parsed && parsed.command === 'status_reply') {
-					self.portStatus[parsed.type][parsed.port] = parsed.connected
-					self.checkFeedbacksById('PortStatus')
+					if (msg.feedback === 'PortStatus') {
+						this.portStatus[msg.type][msg.port] = msg.connected
+						// Delay feedback check to give Companion time to update internal state
+						setTimeout(() => {
+							this.checkFeedbacksById('PortStatus')
+						}, 50) // small delay (50ms)
+
+					}
+				} catch (err) {
+					this.log('error', `Failed to parse WS message: ${err.message}`)
 				}
 
+				//==============================
 			})
 
 			this.ws.on('error', (err) => {
