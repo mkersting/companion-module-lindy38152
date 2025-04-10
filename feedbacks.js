@@ -2,37 +2,47 @@ const { combineRgb } = require('@companion-module/base')
 
 module.exports = async function (self) {
 	self.setFeedbackDefinitions({
-		ChannelState: {
-			name: 'ChannelSwitchState',
+		PortStatus: {
+			name: 'Port Connection Status',
 			type: 'boolean',
-			label: 'ChannelSwitchState',
+			label: 'Status of a specific input/output port',
 			defaultStyle: {
-				bgcolor: combineRgb(255, 0, 0),
+				bgcolor: combineRgb(255, 0, 0), // Red when disconnected
+				color: combineRgb(255, 255, 255),
+			},
+			style: {
+				bgcolor: combineRgb(0, 255, 0), // Green when connected
 				color: combineRgb(0, 0, 0),
 			},
 			options: [
 				{
-					id: 'fb_channelswitch',
+					id: 'portType',
+					type: 'dropdown',
+					label: 'Port Type',
+					default: 'input',
+					choices: [
+						{ id: 'input', label: 'Input' },
+						{ id: 'output', label: 'Output' },
+					],
+				},
+				{
+					id: 'port',
 					type: 'number',
-					label: 'FB_Channel',
-					default: 1,
-					min: 0,
+					label: 'Port Number',
+					min: 1,
 					max: 4,
+					default: 1,
 				},
 			],
 			callback: (feedback) => {
-				//console.log('Feedback called With Number.', feedback.options.fb_channelswitch)
-				console.log('Feedback Log Selected Input: ', this.selectedInput)
-				console.log('Feedback Log Routed Input to Selected Output: ', this.selectedOutput)
 
-				// Check if Device has answered and return true or false
-				if (this.selectedInput == this.selectedOutput) {
-					
-					return true
-				} else {
+				console.log('Feedback Called!')
+				const { portType, port } = feedback.options
+				const status = self.portStatus?.[portType]?.[port]
+				
+				console.log(`Feedback check: ${portType} ${port} → ${status}`)
 
-					return false
-				}
+				return status === true
 			},
 		},
 	})

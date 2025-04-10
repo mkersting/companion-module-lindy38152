@@ -11,7 +11,14 @@ class ModuleInstance extends InstanceBase {
 		super(internal)
 		this.ws = null
 		this.config = {}
+
+		this.portStatus = {
+			input: {},   // { 1: true/false, 2: true/false, ... }
+			output: {},
+		}
 	}
+
+
 
 	async init(config) {
 		this.config = config
@@ -69,6 +76,14 @@ class ModuleInstance extends InstanceBase {
 			this.ws.on('message', (data) => {
 				this.log('debug', `Received from server: ${data}`)
 				// TODO: Handle message from server
+
+				const parsed = parser.parseStatusMessage(data)
+
+				if (parsed && parsed.command === 'status_reply') {
+					self.portStatus[parsed.type][parsed.port] = parsed.connected
+					self.checkFeedbacksById('PortStatus')
+				}
+
 			})
 
 			this.ws.on('error', (err) => {
@@ -94,13 +109,13 @@ class ModuleInstance extends InstanceBase {
 		if (!this.reconnectAttempts) {
 			this.reconnectAttempts = 0
 		}
-	
+
 		const maxAttempts = parseInt(this.config.numberofreconnects) || 5
-	
+
 		if (this.reconnectAttempts < maxAttempts) {
 			this.reconnectAttempts++
 			this.log('info', `Reconnecting attempt ${this.reconnectAttempts} of ${maxAttempts}...`)
-	
+
 			setTimeout(() => {
 				this.setupWebSocket()
 			}, 2000) // try again in 2 seconds

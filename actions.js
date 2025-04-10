@@ -70,17 +70,28 @@ module.exports = function (self) {
 				//====================
 
 
-
+				
 				self.checkFeedbacks()
+				self.checkFeedbacksById('PortStatus')
 			},
 		},
 		request_status: {
-			name: 'Request Status of Iutput',
+			name: 'Request Status of Port',
 			options: [
 				{
+					type: 'dropdown',
+					id: 'portType',
+					label: 'Port Type',
+					default: 'input',
+					choices: [
+						{ id: 'input', label: 'Input' },
+						{ id: 'output', label: 'Output' },
+					],
+				},
+				{
 					type: 'number',
-					id: 'sinput',
-					label: 'Input Number',
+					id: 'statusport',
+					label: 'Port Number',
 					min: 1,
 					max: 4,
 					default: 1,
@@ -90,8 +101,13 @@ module.exports = function (self) {
 
 				sendWsCommand(self, {
 					command: 'status',
-					output: parseInt(options.sinput),
+					type: options.portType, // 'input' or 'output'
+					port: parseInt(options.statusport),
 				})
+
+				console.log('Call Feedback')
+				self.checkFeedbacks()
+				//self.checkFeedbacksById('PortStatus')
 
 				//const msg = {
 				//	command: 'status',
