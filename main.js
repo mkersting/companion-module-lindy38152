@@ -121,6 +121,7 @@ class ModuleInstance extends InstanceBase {
 			})
 		} catch (err) {
 			this.log('error', `Failed to connect: ${err.message}`)
+			this.updateStatus(InstanceStatus.Error)
 		}
 
 		//END INITIALIZE WEBSOCKET CONNECTION
