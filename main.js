@@ -1,3 +1,5 @@
+//Begin Module
+
 const { InstanceBase, Regex, runEntrypoint, InstanceStatus } = require('@companion-module/base')
 const UpgradeScripts = require('./upgrades')
 const UpdateActions = require('./actions')
@@ -13,8 +15,8 @@ class ModuleInstance extends InstanceBase {
 		this.config = {}
 
 		this.portStatus = {
-			input: {1: false, 2: false, 3: false, 4: false},   // { 1: true/false, 2: true/false, ... }
-			output: {1: false, 2: false, 3: false, 4: false},
+			input: { 1: false, 2: false, 3: false, 4: false },   // { 1: true/false, 2: true/false, ... }
+			output: { 1: false, 2: false, 3: false, 4: false },
 		}
 	}
 
@@ -122,16 +124,8 @@ class ModuleInstance extends InstanceBase {
 			})
 		} catch (err) {
 			this.log('error', `Failed to connect: ${err.message}`)
-			this.updateStatus(InstanceStatus.Error,'Failed to connect.')
+			this.updateStatus(InstanceStatus.Error, 'Failed to connect.')
 		}
-
-
-		setTimeout(() => {
-			if (this.reconnectAttempts >= (parseInt(this.config.numberofreconnects) || 5)) {
-				this.updateStatus(InstanceStatus.Error, 'Reconnect limit reached — no connection')
-			}
-		}, 1000) // Wait a few seconds after trying to connect
-
 
 		//END INITIALIZE WEBSOCKET CONNECTION
 	}

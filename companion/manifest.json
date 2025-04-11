@@ -2,7 +2,7 @@
 	"id": "lindy38152",
 	"name": "lindy38152",
 	"shortname": "lindy38152",
-	"description": "Controls Lindy 4x4 Matrix Switch Model 38152 v1 via Websocket",
+	"description": "Controls Lindy 4x4 Matrix Switch Model 38152 v1 via Websocket https://www.lindy.de/4x4-HDMI-4K30-Matrix.htm?websale8=ld0101.ld011101&pi=38152",
 	"version": "0.0.0",
 	"license": "MIT",
 	"repository": "git+https://github.com/mkersting/companion-module-lindy38152.git",
