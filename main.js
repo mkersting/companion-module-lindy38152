@@ -18,6 +18,8 @@ class ModuleInstance extends InstanceBase {
 			input: { 1: false, 2: false, 3: false, 4: false },   // { 1: true/false, 2: true/false, ... }
 			output: { 1: false, 2: false, 3: false, 4: false },
 		}
+
+		this.routingStatus = {}
 	}
 
 
@@ -79,14 +81,7 @@ class ModuleInstance extends InstanceBase {
 
 			this.ws.on('message', (data) => {
 				this.log('debug', `Received from server: ${data}`)
-				// TODO: Handle message from server
-				// HANDLE MESSAGE
-				//const parsed = parser.parseStatusMessage(data)
-				//
-				//if (parsed && parsed.command === 'status_reply') {
-				//	self.portStatus[parsed.type][parsed.port] = parsed.connected
-				//	self.checkFeedbacksById('PortStatus')
-				//}
+
 
 				//console.log('TRY parse Data')
 				try {
@@ -101,6 +96,31 @@ class ModuleInstance extends InstanceBase {
 
 						//console.log('SUCESS parse Data')
 					}
+
+					else if (msg.feedback === 'PortRoutingDisplay') {
+						const { input, output } = msg
+
+						if (input > 0 && port > 0) {
+							//this.routingStatus[port] = input
+							this.routingStatus[msg.port] = msg.input
+							this.log('info', `Routing updated: Output ${port} ← Input ${input}`)
+							//this.checkFeedbacksById('PortRoutingDisplay')
+							this.checkFeedbacks()
+						}
+					}
+
+					// ℹ️ Other commands like switch_ack (optional)
+					else if (msg.feedback === 'switch_ack') {
+						this.log('info', 'Switch confirmation received.')
+					}
+
+					else {
+
+						console.log('Parsed server reply message Does not confirm any IF requirements.')
+					}
+
+
+
 				} catch (err) {
 					this.log('error', `Failed to parse WS message: ${err.message}`)
 				}

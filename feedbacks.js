@@ -45,5 +45,38 @@ module.exports = async function (self) {
 				return status === true
 			},
 		},
+		//End of PortStatus
+
+		//Feedback Portnumber
+		PortRoutingDisplay: {
+			name: 'Display active input on output button',
+			type: 'advanced',
+			label: 'Show active input on button',
+			options: [
+				{
+					id: 'output',
+					type: 'number',
+					label: 'Output port',
+					default: 1,
+					min: 1,
+					max: 4,
+				},
+			],
+			callback: (feedback) => {
+				const output = feedback.options.output
+				const input = self.routingStatus?.[output] || 0
+		
+				if (input > 0) {
+					return {
+						text: input > 0 ? `${input}` : '—',
+					}
+				}
+				return {
+					text: '—', // or 'NC' for not connected
+				}
+			},
+		},
+
+		//END Feedback Portnumber
 	})
 }
