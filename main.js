@@ -25,7 +25,7 @@ class ModuleInstance extends InstanceBase {
 
 		this.setupWebSocket()
 
-		this.updateStatus(InstanceStatus.Ok)
+		this.updateStatus(InstanceStatus.Unknown)
 
 		this.updateActions() // export actions
 		this.updateFeedbacks() // export feedbacks
@@ -71,6 +71,7 @@ class ModuleInstance extends InstanceBase {
 				this.log('info', 'WebSocket connection established')
 				// Reset reconnect attempts after successful connection
 				this.reconnectAttempts = 0
+				this.updateStatus(InstanceStatus.Ok)
 			})
 
 			this.ws.on('message', (data) => {
@@ -106,11 +107,13 @@ class ModuleInstance extends InstanceBase {
 
 			this.ws.on('error', (err) => {
 				this.log('error', `WebSocket error: ${err.message}`)
+				this.updateStatus(InstanceStatus.Error)
 			})
 
 			this.ws.on('close', () => {
 				this.log('warn', 'WebSocket connection closed')
 				this.log("Trying to Reconnect...")
+				this.updateStatus(InstanceStatus.Error)
 
 				if (this.config.enableReconnect) {
 					this.scheduleReconnect()
