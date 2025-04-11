@@ -24,6 +24,7 @@ class ModuleInstance extends InstanceBase {
 		this.config = config
 
 		this.setupWebSocket()
+		this.reconnectAttempts = 0
 
 		this.updateStatus(InstanceStatus.Unknown)
 
@@ -121,8 +122,16 @@ class ModuleInstance extends InstanceBase {
 			})
 		} catch (err) {
 			this.log('error', `Failed to connect: ${err.message}`)
-			this.updateStatus(InstanceStatus.Error)
+			this.updateStatus(InstanceStatus.Error,'Failed to connect.')
 		}
+
+
+		setTimeout(() => {
+			if (this.reconnectAttempts >= (parseInt(this.config.numberofreconnects) || 5)) {
+				this.updateStatus(InstanceStatus.Error, 'Reconnect limit reached — no connection')
+			}
+		}, 1000) // Wait a few seconds after trying to connect
+
 
 		//END INITIALIZE WEBSOCKET CONNECTION
 	}
@@ -136,13 +145,18 @@ class ModuleInstance extends InstanceBase {
 
 		if (this.reconnectAttempts < maxAttempts) {
 			this.reconnectAttempts++
-			this.log('info', `Reconnecting attempt ${this.reconnectAttempts} of ${maxAttempts}...`)
+			//this.log('info', `Reconnecting attempt ${this.reconnectAttempts} of ${maxAttempts}...`)
+			const message = `Reconnecting attempt (${this.reconnectAttempts}/${maxAttempts})...`
+			this.log('info', message)
+
+			this.updateStatus(InstanceStatus.Unknown, message) // Status Unknown
 
 			setTimeout(() => {
 				this.setupWebSocket()
 			}, 2000) // try again in 2 seconds
 		} else {
 			this.log('error', `Max reconnect attempts (${maxAttempts}) reached.`)
+			this.updateStatus(InstanceStatus.Error, 'Max reconnect attempts reached')
 		}
 	}
 
