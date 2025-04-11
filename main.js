@@ -77,6 +77,8 @@ class ModuleInstance extends InstanceBase {
 				// Reset reconnect attempts after successful connection
 				this.reconnectAttempts = 0
 				this.updateStatus(InstanceStatus.Ok)
+
+				pollInitialStatus(this) // Request initial status for all ports
 			})
 
 			this.ws.on('message', (data) => {
@@ -91,7 +93,10 @@ class ModuleInstance extends InstanceBase {
 						this.portStatus[msg.type][msg.port] = msg.connected
 						// Delay feedback check to give Companion time to update internal state
 						setTimeout(() => {
+							this.log('info', 'Call ALL Feedbacks')
 							this.checkFeedbacks()
+							this.log('info', 'Call Feedback By ID')
+							this.checkFeedbacksById('PortStatus')
 						}, 50) // small delay (50ms)
 
 						//console.log('SUCESS parse Data')
@@ -103,9 +108,12 @@ class ModuleInstance extends InstanceBase {
 						if (input > 0 && port > 0) {
 							//this.routingStatus[port] = input
 							this.routingStatus[msg.port] = msg.input
-							this.log('info', `Routing updated: Output ${port} ← Input ${input}`)
-							//this.checkFeedbacksById('PortRoutingDisplay')
-							this.checkFeedbacks()
+							this.log('info', `Routing updated: Output ${msg.port} ← Input ${msg.input}`)
+							
+							setTimeout(() => {
+								this.checkFeedbacks()
+								//this.checkFeedbacksById('PortRoutingDisplay')
+							}, 50) // small delay (50ms)
 						}
 					}
 
@@ -223,5 +231,43 @@ class ModuleInstance extends InstanceBase {
 		UpdateVariableDefinitions(this)
 	}
 }
+
+
+
+//=== HELPER FUNCTIONS
+
+async function pollInitialStatus(self) {
+	const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+	self.log('info', 'Requesting initial status for all ports')
+
+	for (let i = 1; i <= 4; i++) {
+		self.ws.send(
+			JSON.stringify({
+				command: 'status',
+				type: 'input',
+				port: i,
+			})
+		)
+		await delay(150)
+	}
+
+	for (let i = 1; i <= 4; i++) {
+		self.ws.send(
+			JSON.stringify({
+				command: 'status',
+				type: 'output',
+				port: i,
+			})
+		)
+		await delay(150)
+	}
+
+	self.log('info', 'Initial status requests complete')
+}
+//=== END HELPER FUNCTIONS
+
+
+
 
 runEntrypoint(ModuleInstance, UpgradeScripts)
