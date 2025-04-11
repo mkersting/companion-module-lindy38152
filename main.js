@@ -34,6 +34,7 @@ class ModuleInstance extends InstanceBase {
 
 		this.updateActions() // export actions
 		this.updateFeedbacks() // export feedbacks
+		
 		this.updateVariableDefinitions() // export variable definitions
 
 
@@ -78,7 +79,11 @@ class ModuleInstance extends InstanceBase {
 				this.reconnectAttempts = 0
 				this.updateStatus(InstanceStatus.Ok)
 
-				pollInitialStatus(this) // Request initial status for all ports
+				if (!this.config.disableInitialStatusPolling) {
+					pollInitialStatus(this)
+				} else {
+					this.log('info', 'Initial status polling disabled by config')
+				}
 			})
 
 			this.ws.on('message', (data) => {
@@ -88,27 +93,29 @@ class ModuleInstance extends InstanceBase {
 				//console.log('TRY parse Data')
 				try {
 					const msg = JSON.parse(data)
-					//console.log('parse Data')
+					console.log(msg)
 					if (msg.feedback === 'PortStatus') {
 						this.portStatus[msg.type][msg.port] = msg.connected
 						// Delay feedback check to give Companion time to update internal state
 						setTimeout(() => {
-							this.log('info', 'Call ALL Feedbacks')
-							this.checkFeedbacks()
+							//this.log('info', 'Call ALL Feedbacks')
+							//this.checkFeedbacks()
 							this.log('info', 'Call Feedback By ID')
+							console.log(msg.feedback)
 							this.checkFeedbacksById('PortStatus')
-						}, 50) // small delay (50ms)
+						}, 100) // small delay (50ms)
 
 						//console.log('SUCESS parse Data')
 					}
 
 					else if (msg.feedback === 'PortRoutingDisplay') {
-						const { input, output } = msg
-
-						if (input > 0 && port > 0) {
+						
+						if (msg.input > 0 && msg.port > 0) {
 							//this.routingStatus[port] = input
 							this.routingStatus[msg.port] = msg.input
 							this.log('info', `Routing updated: Output ${msg.port} ← Input ${msg.input}`)
+							
+							console.log(msg.feedback)
 							
 							setTimeout(() => {
 								this.checkFeedbacks()
@@ -117,10 +124,10 @@ class ModuleInstance extends InstanceBase {
 						}
 					}
 
-					// ℹ️ Other commands like switch_ack (optional)
-					else if (msg.feedback === 'switch_ack') {
-						this.log('info', 'Switch confirmation received.')
-					}
+					//// Other commands like switch_ack (optional)
+					//else if (msg.feedback === 'switch_ack') {
+					//	this.log('info', 'Switch confirmation received.')
+					//}
 
 					else {
 
@@ -215,6 +222,19 @@ class ModuleInstance extends InstanceBase {
 				min: 1,
 				max: 10,
 				default: 5,
+			},
+			{
+				type: 'static-text',
+				id: 'advancedHeading',
+				width: 12,
+				label: 'Advanced Options',
+				value: 'Only change the following if you know what they do.',
+			},
+			{
+				id: 'disableInitialStatusPolling',
+				type: 'checkbox',
+				label: 'Disable initial automatic status polling on startup',
+				default: false,
 			},
 		]
 	}

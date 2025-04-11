@@ -1,6 +1,10 @@
 const { combineRgb } = require('@companion-module/base')
 
 module.exports = async function (self) {
+
+	console.log('feedbacks.js: Registering feedbacks now...')
+	self.log('debug', 'Registering feedbacks...')
+
 	self.setFeedbackDefinitions({
 		PortStatus: {
 			name: 'Port Connection Status',
