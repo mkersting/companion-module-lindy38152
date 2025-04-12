@@ -87,6 +87,7 @@ class ModuleInstance extends InstanceBase {
 			})
 
 			this.ws.on('message', (data) => {
+				
 				this.log('debug', `Received from server: ${data}`)
 
 
@@ -95,13 +96,13 @@ class ModuleInstance extends InstanceBase {
 					const msg = JSON.parse(data)
 					console.log(msg)
 					if (msg.feedback === 'PortStatus') {
-						this.portStatus[msg.type][msg.port] = msg.connected
+						this.portStatus[msg.direction][msg.port] = msg.connected
 						// Delay feedback check to give Companion time to update internal state
 						setTimeout(() => {
 							//this.log('info', 'Call ALL Feedbacks')
 							//this.checkFeedbacks()
 							this.log('info', 'Call Feedback By ID')
-							console.log(msg.feedback)
+							console.log(msg)
 							this.checkFeedbacksById('PortStatus')
 						}, 100) // small delay (50ms)
 

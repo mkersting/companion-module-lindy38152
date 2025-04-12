@@ -2,8 +2,8 @@ const { combineRgb } = require('@companion-module/base')
 
 module.exports = async function (self) {
 
-	console.log('feedbacks.js: Registering feedbacks now...')
-	self.log('debug', 'Registering feedbacks...')
+	//console.log('feedbacks.js: Registering feedbacks now...')
+	//self.log('debug', 'Registering feedbacks...')
 
 	self.setFeedbackDefinitions({
 		PortStatus: {
@@ -20,9 +20,9 @@ module.exports = async function (self) {
 			},
 			options: [
 				{
-					id: 'portType',
+					id: 'direction',
 					type: 'dropdown',
-					label: 'Port Type',
+					label: 'Port Direction',
 					default: 'input',
 					choices: [
 						{ id: 'input', label: 'Input' },
@@ -41,10 +41,10 @@ module.exports = async function (self) {
 			callback: (feedback) => {
 
 				console.log('Feedback Called!')
-				const { portType, port } = feedback.options
-				const status = self.portStatus?.[portType]?.[port]
+				const { direction, port } = feedback.options
+				const status = self.portStatus?.[direction]?.[port]
 				
-				console.log(`Feedback check: ${portType} ${port} → ${status}`)
+				console.log(`Feedback check: ${direction} ${port} → ${status}`)
 
 				return status === true
 			},

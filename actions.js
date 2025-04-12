@@ -101,7 +101,7 @@ module.exports = function (self) {
 
 				sendWsCommand(self, {
 					command: 'status',
-					type: options.portType, // 'input' or 'output'
+					direction: options.portType, // 'input' or 'output'
 					port: parseInt(options.statusport),
 				})
 				
