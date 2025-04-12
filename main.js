@@ -40,15 +40,10 @@ class ModuleInstance extends InstanceBase {
 
 		this.updateStatus(InstanceStatus.Unknown)
 
-
 		this.updateActions() // export actions
 		this.updateFeedbacks() // export feedbacks
 		
 		this.updateVariableDefinitions() // export variable definitions
-
-
-
-
 	}
 	// When module gets deleted
 	async destroy() {
@@ -97,19 +92,19 @@ class ModuleInstance extends InstanceBase {
 
 			this.ws.on('message', (data) => {
 				
-				this.log('debug', `Received from server: ${data}`)
+				//this.log('debug', `Received from server: ${data}`)
 
 
 				//console.log('TRY parse Data')
 				try {
 					const msg = JSON.parse(data)
-					console.log(msg)
+					//console.log(msg)
 					if (msg.feedback === 'PortStatus') {
 						this.portStatus[msg.direction][msg.port] = msg.connected
 						// Delay feedback check to give Companion time to update internal state
 						setTimeout(() => {
 							//this.log('info', 'Call ALL Feedbacks')
-							//this.checkFeedbacks()
+							this.checkFeedbacks()
 							this.log('info', 'Call Feedback By ID')
 							//console.log(msg)
 							//console.log(this.portStatus)
@@ -118,6 +113,7 @@ class ModuleInstance extends InstanceBase {
 
 							const fbId = this.feedbackInstanceMap?.[msg.direction]?.[msg.port]
 							//console.log(fbId)
+							
 							if (fbId) {
 								//this.log('debug', `Triggering feedback by ID: ${fbId}`)
 								this.checkFeedbacksById(fbId)

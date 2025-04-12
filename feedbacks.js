@@ -40,18 +40,18 @@ module.exports = async function (self) {
 			],
 			callback: (feedback) => {
 
-				console.log('Feedback Called! ID: ',feedback.id)
-
+				//console.log('Feedback Called! ID: ',feedback.id)
+				//console.log(self.feedbackInstanceMap)
 				///===
-
+				//console.log (feedback)
 				const { direction, port } = feedback.options
 				const status = self.portStatus?.[direction]?.[port]
 
 				self.feedbackInstanceMap[direction][port] = feedback.id
 				console.log(`Registered feedback instance: ${direction} ${port} → ID = ${feedback.id}`)
 
-				console.log(`Feedback check: ${direction} ${port} → ${status}`)
-				console.log (status === true)
+				//console.log(`Feedback check: ${direction} ${port} → ${status}`)
+				//console.log(status === true)
 				return status === true // Return true if the port is connected
 			},
 

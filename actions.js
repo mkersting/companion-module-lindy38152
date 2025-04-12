@@ -42,14 +42,11 @@ module.exports = function (self) {
 				console.log('Switch Input To Output Channel: ', event.options.output)
 				this.selectedInput = event.options.input
 				this.selectedOutput = event.options.output
-				// console.log('Selected Input: ', this.selectedInput)
-				// console.log('Selected Output: ', this.selectedOutput)
-
-
-				//====================
+				
 				//Websocket Send
 
 				sendWsCommand(self, {
+					msgtype: 'companion',
 					command: 'switch',
 					input: event.options.input,
 					output: event.options.output,
@@ -72,7 +69,7 @@ module.exports = function (self) {
 
 				
 				//self.checkFeedbacks()
-				self.checkFeedbacksById('PortStatus')
+				//self.checkFeedbacksById('PortStatus')
 			},
 		},
 		request_status: {
@@ -100,6 +97,7 @@ module.exports = function (self) {
 			callback: async ({ options }) => {
 
 				sendWsCommand(self, {
+					msgtype: 'companion',
 					command: 'status',
 					direction: options.portType, // 'input' or 'output'
 					port: parseInt(options.statusport),
