@@ -40,14 +40,21 @@ module.exports = async function (self) {
 			],
 			callback: (feedback) => {
 
-				console.log('Feedback Called!')
+				console.log('Feedback Called! ID: ',feedback.id)
+
+				///===
+
 				const { direction, port } = feedback.options
 				const status = self.portStatus?.[direction]?.[port]
-				
-				console.log(`Feedback check: ${direction} ${port} → ${status}`)
 
-				return status === true
+				self.feedbackInstanceMap[direction][port] = feedback.id
+				console.log(`Registered feedback instance: ${direction} ${port} → ID = ${feedback.id}`)
+
+				console.log(`Feedback check: ${direction} ${port} → ${status}`)
+				console.log (status === true)
+				return status === true // Return true if the port is connected
 			},
+
 		},
 		//End of PortStatus
 
@@ -69,7 +76,7 @@ module.exports = async function (self) {
 			callback: (feedback) => {
 				const output = feedback.options.output
 				const input = self.routingStatus?.[output] || 0
-		
+
 				if (input > 0) {
 					return {
 						text: input > 0 ? `${input}` : '—',

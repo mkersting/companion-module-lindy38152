@@ -20,6 +20,14 @@ class ModuleInstance extends InstanceBase {
 		}
 
 		this.routingStatus = {}
+
+
+		this.feedbackInstanceMap = {
+			input: { 1: null, 2: null, 3: null, 4: null },   // {Feedbacks for each port }
+			output: { 1: null, 2: null, 3: null, 4: null },
+		}
+
+
 	}
 
 
@@ -31,6 +39,7 @@ class ModuleInstance extends InstanceBase {
 		this.reconnectAttempts = 0
 
 		this.updateStatus(InstanceStatus.Unknown)
+
 
 		this.updateActions() // export actions
 		this.updateFeedbacks() // export feedbacks
@@ -102,9 +111,23 @@ class ModuleInstance extends InstanceBase {
 							//this.log('info', 'Call ALL Feedbacks')
 							//this.checkFeedbacks()
 							this.log('info', 'Call Feedback By ID')
-							console.log(msg)
-							this.checkFeedbacksById('PortStatus')
-						}, 100) // small delay (50ms)
+							//console.log(msg)
+							//console.log(this.portStatus)
+							//this.checkFeedbacksById('PortStatus')
+							//===============================
+
+							const fbId = this.feedbackInstanceMap?.[msg.direction]?.[msg.port]
+							//console.log(fbId)
+							if (fbId) {
+								//this.log('debug', `Triggering feedback by ID: ${fbId}`)
+								this.checkFeedbacksById(fbId)
+							} else {
+								this.log('warn', `No feedback ID found.`)
+							}
+
+							//===============================
+
+						}, 10) // small delay (50ms)
 
 						//console.log('SUCESS parse Data')
 					}
@@ -121,7 +144,7 @@ class ModuleInstance extends InstanceBase {
 							setTimeout(() => {
 								this.checkFeedbacks()
 								//this.checkFeedbacksById('PortRoutingDisplay')
-							}, 50) // small delay (50ms)
+							}, 10) // small delay (50ms)
 						}
 					}
 
