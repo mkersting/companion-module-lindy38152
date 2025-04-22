@@ -53,23 +53,6 @@ module.exports = function (self) {
 				})
 
 
-				//if (self.ws && self.ws.readyState === WebSocket.OPEN) {
-				//	self.ws.send(JSON.stringify({
-				//		command: 'switch',
-				//		input: this.selectedInput,
-				//		output: this.selectedOutput,
-				//	}))
-				//}
-				//else {
-				//	self.log('warn', 'WebSocket not connected')
-				//}
-
-				//====================
-
-
-				
-				//self.checkFeedbacks()
-				//self.checkFeedbacksById('PortStatus')
 			},
 		},
 		request_status: {
@@ -103,24 +86,6 @@ module.exports = function (self) {
 					port: parseInt(options.statusport),
 				})
 				
-				//setTimeout(() => {
-				//	console.log('Call Feedback')
-				//}, 50) // small delay (50ms)
-
-				//self.checkFeedbacks()
-				//self.checkFeedbacksById('PortStatus')
-
-				//const msg = {
-				//	command: 'status',
-				//	output: parseInt(options.output),
-				//}
-
-				//if (self.ws && self.ws.readyState === WebSocket.OPEN) {
-				//	self.ws.send(JSON.stringify(msg))
-				//	self.log('info', `Sent status request for output ${options.output}`)
-				//} else {
-				//	self.log('error', 'WebSocket not connected')
-				//}
 			},
 		},
 	})

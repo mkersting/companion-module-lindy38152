@@ -14,6 +14,8 @@ class ModuleInstance extends InstanceBase {
 		this.ws = null
 		this.config = {}
 
+		this.shouldReconnect = true
+
 		this.portStatus = {
 			input: { 1: false, 2: false, 3: false, 4: false },   // { 1: true/false, 2: true/false, ... }
 			output: { 1: false, 2: false, 3: false, 4: false },
@@ -48,13 +50,23 @@ class ModuleInstance extends InstanceBase {
 	// When module gets deleted
 	async destroy() {
 		this.log('debug', 'destroy')
+
+		this.reconnectAttempts = 9999  // Prevent reconnects
+		this.shouldReconnect = false
+
+	if (this.ws) {
+		this.ws.close()
+		this.ws = null
+	}
 	}
 
 	async configUpdated(config) {
 		this.config = config
 
-		if (this.socket) {
-			this.socket.close()
+		if (this.ws) {
+			this.shouldReconnect = false
+			this.ws.close()
+			this.ws = null
 		}
 
 		this.setupWebSocket()
@@ -101,11 +113,12 @@ class ModuleInstance extends InstanceBase {
 					//console.log(msg)
 					if (msg.feedback === 'PortStatus') {
 						this.portStatus[msg.direction][msg.port] = msg.connected
+						//console.log(msg)
 						// Delay feedback check to give Companion time to update internal state
 						setTimeout(() => {
-							//this.log('info', 'Call ALL Feedbacks')
+							this.log('info', 'Call ALL Feedbacks')
 							this.checkFeedbacks()
-							this.log('info', 'Call Feedback By ID')
+							//this.log('info', 'Call Feedback By ID')
 							//console.log(msg)
 							//console.log(this.portStatus)
 							//this.checkFeedbacksById('PortStatus')
@@ -114,12 +127,12 @@ class ModuleInstance extends InstanceBase {
 							const fbId = this.feedbackInstanceMap?.[msg.direction]?.[msg.port]
 							//console.log(fbId)
 							
-							if (fbId) {
-								//this.log('debug', `Triggering feedback by ID: ${fbId}`)
-								this.checkFeedbacksById(fbId)
-							} else {
-								this.log('warn', `No feedback ID found.`)
-							}
+							//if (fbId) {
+							//	//this.log('debug', `Triggering feedback by ID: ${fbId}`)
+							//	this.checkFeedbacksById(fbId)
+							//} else {
+							//	this.log('warn', `No feedback ID found.`)
+							//}
 
 							//===============================
 
@@ -170,11 +183,14 @@ class ModuleInstance extends InstanceBase {
 
 			this.ws.on('close', () => {
 				this.log('warn', 'WebSocket connection closed')
-				this.log("Trying to Reconnect...")
 				this.updateStatus(InstanceStatus.Error)
 
-				if (this.config.enableReconnect) {
+				if (this.shouldReconnect && this.config.enableReconnect) {
+					this.log("Trying to Reconnect...")
 					this.scheduleReconnect()
+				}
+				else {
+					this.log('info', 'Reconnect disabled. No further attempts will be made.')
 				}
 			})
 		} catch (err) {
@@ -186,22 +202,24 @@ class ModuleInstance extends InstanceBase {
 	}
 
 	scheduleReconnect() {
+
 		if (!this.reconnectAttempts) {
 			this.reconnectAttempts = 0
 		}
 
 		const maxAttempts = parseInt(this.config.numberofreconnects) || 5
 
-		if (this.reconnectAttempts < maxAttempts) {
+		if (this.reconnectAttempts < maxAttempts && this.shouldReconnect && this.config.enableReconnect) {
 			this.reconnectAttempts++
-			//this.log('info', `Reconnecting attempt ${this.reconnectAttempts} of ${maxAttempts}...`)
 			const message = `Reconnecting attempt (${this.reconnectAttempts}/${maxAttempts})...`
 			this.log('info', message)
 
 			this.updateStatus(InstanceStatus.Unknown, message) // Status Unknown
 
 			setTimeout(() => {
-				this.setupWebSocket()
+				if (this.shouldReconnect) { // extra safety inside timeout
+					this.setupWebSocket()
+				}
 			}, 2000) // try again in 2 seconds
 		} else {
 			this.log('error', `Max reconnect attempts (${maxAttempts}) reached.`)
@@ -284,8 +302,9 @@ async function pollInitialStatus(self) {
 	for (let i = 1; i <= 4; i++) {
 		self.ws.send(
 			JSON.stringify({
+				msgtype: 'companion',
 				command: 'status',
-				type: 'input',
+				direction: 'input',
 				port: i,
 			})
 		)
@@ -295,8 +314,9 @@ async function pollInitialStatus(self) {
 	for (let i = 1; i <= 4; i++) {
 		self.ws.send(
 			JSON.stringify({
+				msgtype: 'companion',
 				command: 'status',
-				type: 'output',
+				direction: 'output',
 				port: i,
 			})
 		)
