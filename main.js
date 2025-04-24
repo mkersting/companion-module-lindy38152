@@ -44,7 +44,7 @@ class ModuleInstance extends InstanceBase {
 
 		this.updateActions() // export actions
 		this.updateFeedbacks() // export feedbacks
-		
+
 		this.updateVariableDefinitions() // export variable definitions
 	}
 	// When module gets deleted
@@ -54,10 +54,10 @@ class ModuleInstance extends InstanceBase {
 		this.reconnectAttempts = 9999  // Prevent reconnects
 		this.shouldReconnect = false
 
-	if (this.ws) {
-		this.ws.close()
-		this.ws = null
-	}
+		if (this.ws) {
+			this.ws.close()
+			this.ws = null
+		}
 	}
 
 	async configUpdated(config) {
@@ -91,12 +91,14 @@ class ModuleInstance extends InstanceBase {
 
 			this.ws.on('open', () => {
 				this.log('info', 'WebSocket connection established')
-				this.ws.send(JSON.stringify({ msgtype: 'companion'}))
+				this.ws.send(JSON.stringify({ msgtype: 'companion' ,
+					status: 'connected',}))
 
 				// Reset reconnect attempts after successful connection
 				this.reconnectAttempts = 0
 				this.updateStatus(InstanceStatus.Ok)
 
+				
 				if (!this.config.disableInitialStatusPolling) {
 					pollInitialStatus(this)
 				} else {
@@ -105,7 +107,7 @@ class ModuleInstance extends InstanceBase {
 			})
 
 			this.ws.on('message', (data) => {
-				
+
 				//this.log('debug', `Received from server: ${data}`)
 
 
@@ -128,7 +130,7 @@ class ModuleInstance extends InstanceBase {
 
 							const fbId = this.feedbackInstanceMap?.[msg.direction]?.[msg.port]
 							//console.log(fbId)
-							
+
 							//if (fbId) {
 							//	//this.log('debug', `Triggering feedback by ID: ${fbId}`)
 							//	this.checkFeedbacksById(fbId)
@@ -144,14 +146,14 @@ class ModuleInstance extends InstanceBase {
 					}
 
 					else if (msg.feedback === 'PortRoutingDisplay') {
-						
+
 						if (msg.input > 0 && msg.port > 0) {
 							//this.routingStatus[port] = input
 							this.routingStatus[msg.port] = msg.input
 							this.log('info', `Routing updated: Output ${msg.port} ← Input ${msg.input}`)
-							
+
 							console.log(msg.feedback)
-							
+
 							setTimeout(() => {
 								this.checkFeedbacks()
 								//this.checkFeedbacksById('PortRoutingDisplay')
