@@ -91,6 +91,8 @@ class ModuleInstance extends InstanceBase {
 
 			this.ws.on('open', () => {
 				this.log('info', 'WebSocket connection established')
+				this.ws.send(JSON.stringify({ msgtype: 'companion'}))
+
 				// Reset reconnect attempts after successful connection
 				this.reconnectAttempts = 0
 				this.updateStatus(InstanceStatus.Ok)
